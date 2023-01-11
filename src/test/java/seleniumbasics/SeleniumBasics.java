@@ -1,13 +1,25 @@
 package seleniumbasics;
 
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.ITest;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -36,15 +48,20 @@ public class SeleniumBasics {
     }
 
     @AfterMethod
-    public void tearDown() {
-        // driver.close();
+    public void tearDown(ITestResult result) throws IOException {
+        if (result.getStatus() == ITestResult.FAILURE) {
+            TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
+            File screenshot = takesScreenshot.getScreenshotAs(OutputType.FILE);
+            FileUtils.copyFile(screenshot, new File("./Screenshots/" + result.getName() + ".png"));
+        }
+        //driver.close();
     }
 
     @Test
     public void TC_001_verifyObsquraTitle() {
         driver.get("https://selenium.obsqurazone.com/index.php");
         String actualTitle = driver.getTitle();
-        String expectedTitle = "Obsqura Testing";
+        String expectedTitle = "Obsqura Testing1";
         Assert.assertEquals(actualTitle, expectedTitle, "Invalid Title found");
     }
 
@@ -90,16 +107,19 @@ public class SeleniumBasics {
         //WebElement state = driver.findElement(By.xpath("//input[@placeholder='State']"));
         // state.sendKeys("kerala");
 
-        String expectedZipFieldErrorMessage = "Please provide a valid zip.";
+       // String expectedZipFieldErrorMessage = "Please provide a valid zip.";
         WebElement checkBox = driver.findElement(By.xpath("//input[@class='form-check-input']"));
         checkBox.click();
         WebElement submit = driver.findElement(By.xpath("//button[@class='btn btn-primary']"));
         submit.click();
         WebElement zipFieldValidation = driver.findElement(By.xpath("//input[@id='validationCustom05']//following-sibling::div[1]"));
         String actualzipFieldValidation = zipFieldValidation.getText();
+        String expectedZipFieldErrorMessage = "Please provide a valid zip.";
         WebElement stateFieldValidation = driver.findElement(By.xpath("//input[@id='validationCustom04']//following-sibling::div[1]"));
         String expectedStateFieldErrorMessage = "Please provide a valid state.";
-        Assert.assertEquals(stateFieldValidation.getText(), expectedStateFieldErrorMessage, "Invalid Message found");
+        String actualstateFieldValidation = stateFieldValidation.getText();
+
+        Assert.assertEquals(actualstateFieldValidation, expectedStateFieldErrorMessage, "Invalid Message found");
         Assert.assertEquals(actualzipFieldValidation, expectedZipFieldErrorMessage, "Invalid message found");
 
     }
@@ -229,7 +249,7 @@ public class SeleniumBasics {
         WebElement login = driver.findElement(By.xpath("//a[@class='ico-login']"));
         login.click();
         driver.navigate().back();
-        Thread.sleep(10000);
+       Thread.sleep(10000);
         driver.navigate().forward();
     }
 
@@ -248,7 +268,7 @@ public class SeleniumBasics {
         System.out.println(actualSuccessMessage);
         String expectedSuccessMessage = "Form has been submitted successfully!";
         Assert.assertEquals(actualSuccessMessage, expectedSuccessMessage, "Invalid message found");
-        driver.quit();
+        //driver.quit();
 
     }
 
@@ -257,6 +277,7 @@ public class SeleniumBasics {
         driver.get("https://selenium.obsqurazone.com/ajax-form-submit.php");
         WebElement subjectField = driver.findElement(By.xpath("//input[@id='subject']"));
         subjectField.sendKeys("Selenium");
+        //boolean status = subjectField.isDisplayed();
         boolean status = subjectField.isDisplayed();
         System.out.println(status);
         Assert.assertTrue(status, "Subject field is not displayed");
@@ -415,9 +436,241 @@ public class SeleniumBasics {
                 driver.close();
 
             }
-            }
+        }
         driver.switchTo().window(parentWindow);
-        }
-        }
+    }
 
+    @Test
+    public void TC_020_verifySimpleAlert() {
+        driver.get("https://selenium.obsqurazone.com/javascript-alert.php");
+        WebElement clickMe = driver.findElement(By.xpath("//button[@class='btn btn-success']"));
+        clickMe.click();
+        Alert alert = driver.switchTo().alert();
+        String alertText = alert.getText();
+        System.out.println(alertText);
+        alert.accept();
+
+
+    }
+
+    @Test
+    public void TC_020_verifyConfirmationAlert() {
+        driver.get("https://selenium.obsqurazone.com/javascript-alert.php");
+        WebElement confirmationClick = driver.findElement(By.xpath("//button[@class='btn btn-warning']"));
+        confirmationClick.click();
+        Alert alert = driver.switchTo().alert();
+        alert.dismiss();
+
+    }
+
+    @Test
+    public void verifyPromptAlert() {
+        driver.get("https://selenium.obsqurazone.com/javascript-alert.php");
+        WebElement promptClick = driver.findElement(By.xpath("//button[@class='btn btn-danger']"));
+        promptClick.click();
+        Alert alert = driver.switchTo().alert();
+        String text = alert.getText();
+        System.out.println(text);
+        alert.sendKeys("Aradhana");
+        alert.accept();
+
+    }
+
+    @Test
+    public void verifyTextFrame() {
+        driver.get("https://demoqa.com/frames");
+        List<WebElement> frames = driver.findElements(By.tagName("iframe"));
+        int numberofFrames = frames.size();
+        System.out.println(numberofFrames);
+        //driver.switchTo().frame("frame1");
+        //driver.switchTo().frame(3);
+        WebElement frame = driver.findElement(By.id("frame1"));
+        driver.switchTo().frame(frame);
+        WebElement heading = driver.findElement(By.id("sampleHeading"));
+        String text = heading.getText();
+        System.out.println(text);
+        driver.switchTo().parentFrame();
+    }
+
+    @Test
+    public void verifyRightClick() {
+        driver.get("https://demo.guru99.com/test/simple_context_menu.html");
+        WebElement rightClick = driver.findElement(By.xpath("//span[@class='context-menu-one btn btn-neutral']"));
+        Actions action = new Actions(driver);
+        action.contextClick(rightClick).build().perform();
+    }
+
+    @Test
+    public void verifyDoubleClick() {
+        driver.get("https://demo.guru99.com/test/simple_context_menu.html");
+        WebElement doubleClick = driver.findElement(By.xpath("//button[text() ='Double-Click Me To See Alert']"));
+        Actions action = new Actions(driver);
+        action.doubleClick(doubleClick).build().perform();
+        Alert alert = driver.switchTo().alert();
+        alert.accept();
+
+    }
+
+    @Test
+    public void verifyMouseHover() {
+        driver.get("https://demoqa.com/menu/");
+        WebElement mainItem1 = driver.findElement(By.xpath("//a[text()='Main Item 1']"));
+        Actions action = new Actions(driver);
+        //action.moveToElement(mainItem1).build().perform();
+        action.moveToElement(mainItem1).build().perform();
+        // action.moveToElement(mainItem1,50,50).build().perform();
+        //  action.moveByOffset(40,80).build().perform();
+
+    }
+
+    @Test
+    public void verifyDragDrop() {
+        driver.get("https://demoqa.com/droppable");
+        WebElement dragMe = driver.findElement(By.xpath("//div[@id='draggable']"));
+        WebElement dropHere = driver.findElement(By.xpath("//div[@id='droppable']"));
+        Actions action = new Actions(driver);
+        action.dragAndDrop(dragMe, dropHere).build().perform();
+
+    }
+
+    @Test
+    public void verifyDragDropByOfset() {
+        driver.get("https://demoqa.com/dragabble");
+        WebElement dragMe = driver.findElement(By.xpath("//div[text()='Drag me']"));
+        Actions action = new Actions(driver);
+        //action.dragAndDropBy(dragMe, 60, 70).build().perform();
+        action.dragAndDropBy(dragMe,50,40).build().perform();
+
+    }
+
+    @Test
+    public void verifyDragandResize() {
+        driver.get("https://demoqa.com/resizable");
+        WebElement resize = driver.findElement(By.xpath("//div[@id='resizableBoxWithRestriction']"));
+        Actions action = new Actions(driver);
+        action.clickAndHold(resize).build().perform();
+        action.dragAndDropBy(resize, 200, 200).build().perform();
+    }
+
+    @Test
+    public void verifyValuesInDropDown() {
+        driver.get("https://demo.guru99.com/test/newtours/register.php");
+        List<String> expDropDownList = new ArrayList<>();
+        expDropDownList.add("ALBANIA");
+        expDropDownList.add("ALGERIA");
+        expDropDownList.add("AMERICAN SAMOA");
+        expDropDownList.add("ANDORRA");
+        List<String> actDropDownList = new ArrayList<>();
+        WebElement countryDropDown = driver.findElement(By.xpath("//select[@name='country']"));
+        Select select = new Select(countryDropDown);
+        List<WebElement> dropDownOption = select.getOptions();
+        System.out.println(dropDownOption.size());
+        for (int i = 0; i < 4; i++) {
+            //System.out.println(dropDownOption.get(i).getText());
+            actDropDownList.add(dropDownOption.get(i).getText());
+        }
+        System.out.println(actDropDownList);
+        Assert.assertEquals(actDropDownList, expDropDownList, "DropDown values not found");
+        //select.selectByVisibleText("INDIA");
+        //select.selectByIndex(23);
+        select.selectByValue("INDIA");
+        select.getAllSelectedOptions();
+    }
+
+    @Test
+    public void verifyMethodsInSelectClass() {
+        driver.get("https://www.softwaretestingmaterial.com/sample-webpage-to-automate/");
+        WebElement dropDown = driver.findElement(By.xpath("(//select[@class='spTextField'])[1]"));
+        Select select = new Select(dropDown);
+        boolean multipleStatus = select.isMultiple();
+        System.out.println(multipleStatus);
+        select.selectByVisibleText("Performance Testing");
+        select.selectByValue("msmanual");
+        List<WebElement> selectedOption = select.getAllSelectedOptions();
+        for (int i = 0; i < selectedOption.size(); i++) {
+            System.out.println(selectedOption.get(i).getText());
+        }
+        select.deselectByValue("msmanual");
+        select.deselectAll();
+    }
+
+    @Test
+    public void verifyFileUploading() {
+        driver.get("https://demo.guru99.com/test/upload/");
+        WebElement chooseFile = driver.findElement(By.xpath("//input[@id='uploadfile_0']"));
+        chooseFile.sendKeys("C:\\selenium\\test.txt");
+        WebElement checkBox = driver.findElement(By.xpath("//input[@id='terms']"));
+        checkBox.click();
+        WebElement submitButton = driver.findElement(By.xpath("//button[@id='submitbutton']"));
+        submitButton.click();
+    }
+
+    @Test
+    public void verifyUsingJavaScript() {
+        driver.get("https://demowebshop.tricentis.com/");
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("document.getElementById('newsletter-email').value='test@test.com'");
+        js.executeScript("document.getElementById('newsletter-subscribe-button').click()");
+
+    }
+
+    @Test
+    public void verifyWightSelenium() {
+        driver.get("https://demowebshop.tricentis.com/");
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        WebElement emailId = driver.findElement(By.xpath("//input[@id='newsletter-email']"));
+        emailId.sendKeys("aradhana@gmail.com");
+        WebElement subscribe = driver.findElement(By.xpath("//input[@id='newsletter-subscribe-button']"));
+        WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(subscribe));
+        FluentWait fwait = new FluentWait<>(driver);
+        fwait.withTimeout(Duration.ofSeconds(10));
+        fwait.pollingEvery(Duration.ofSeconds(1));
+        fwait.until(ExpectedConditions.visibilityOf(subscribe));
+        subscribe.click();
+    }
+    @Test
+    public void verifyScrollDown() {
+        driver.get("https://demowebshop.tricentis.com/");//change url
+        JavascriptExecutor js = (JavascriptExecutor)driver;
+        js.executeScript("window.scrollBy(0,1000)");
+
+
+    }
+    @Test
+    public void verifyScrollingToViewOfWebElement() {
+    driver.get("https://demo.guru99.com/test/guru99home/");
+    WebElement linux = driver.findElement(By.linkText("Linux"));
+    JavascriptExecutor js = (JavascriptExecutor)driver;
+    js.executeScript("arguments[0].scrollIntoView();",linux);
+
+    }
+    @Test
+    public void verifyScrollToBottomOfPage() {
+        driver.get("https://demo.guru99.com/test/guru99home/");
+        JavascriptExecutor js = (JavascriptExecutor)driver;
+        js.executeScript("window.scrollTo(0,document.body.scrollHeight)");
+    }
+    @Test
+    public void verifyHorizontalScroll() {
+    driver.get("https://demo.guru99.com/test/guru99home/scrolling.h*tml");
+    WebElement vbScript = driver.findElement(By.linkText("VBScript"));
+    JavascriptExecutor js = (JavascriptExecutor)driver;
+    js.executeScript("arguments[0].scrollIntoView();",vbScript);
+    }
+    @Test
+    public void verifyTable() throws IOException {
+        driver.get("https://www.w3schools.com/html/html_tables.asp");
+        List<WebElement> rowElements=driver.findElements(By.xpath("//table[@id='customers']//tbody//tr"));
+        List<WebElement> columnElements=driver.findElements(By.xpath("//table[@id='customers']//tbody//tr//td"));
+        List<ArrayList<String>> actGridData=TableUtility.get_Dynamic_TwoDimension_TablElemnts(rowElements,columnElements);
+        List<ArrayList<String>> expGridData=ExcelUtility.excelDataReader("\\src\\test\\resources\\TestData.xlsx","Table");
+        Assert.assertEquals(actGridData,expGridData,"Invalid data found in table");
+
+
+
+
+    }
+}
 
