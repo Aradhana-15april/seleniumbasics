@@ -8,51 +8,23 @@
                     <include name="TC_001_verifyObsquraTitle"/>
                     <include name="TC_002_verifySingleInputMessage"/>
                     <include name="TC_003_verifyTwoInputMessage"/>
-                    <include name="TC_004_verifyFormNoZipNoState"/>
-                    <include name="TC_005_verifySubmitform"/>
-                    <include name="TC_006_verifyValidationFieldEmpty"/>
-                    <include name="TC_007_verifyNewsletterSubscription"/>
-                    <include name="TC_008_verifyInstantdemoRequestform"/>
-                    <include name="TC_008_verifyQuitClose"/>
-                    <include name="TC_009_verifyNavigateTo"/>
-                    <include name="TC_0010_verifyRefresh"/>
-                    <include name="TC_0011_verifyForwardandBackward"/>
-                    <include name="TC_0012_verifyWebElementCommand"/>
-                    <include name="TC_013_verifyIsDisplayed"/>
-                    <include name="TC_014_verifyIsSelected"/>
-                    <include name="TC_015_verifyIsEnabled"/>
-                    <include name="TC_016_verifyDiffrenceBetweenFindElementandFindElements"/>
-                    <include name="TC_017_verifyMultipleWindowHandlling"/>
-                    <include name="TC_018_verifyNewTab"/>
-                    <include name="TC_019_verifyNewWindow"/>
-                    <include name="TC_020_verifyNewWindowMessage"/>
-                    <include name="TC_020_verifySimpleAlert"/>
-                    <include name="TC_020_verifyConfirmationAlert"/>
-                    <include name="verifyPromptAlert"/>
-                    <include name="verifyTextFrame"/>
-                    <include name="verifyRightClick"/>
-                    <include name="verifyDoubleClick"/>
-                    <include name="verifyMouseHover"/>
-                    <include name="verifyDragDrop"/>
-                    <include name="verifyDragDropByOfset"/>
-                    <include name="verifyDragandResize"/>
-                    <include name="verifyValuesInDropDown"/>
-                    <include name="verifyMethodsInSelectClass"/>
-                    <include name="verifyFileUploading"/>
-                    <include name="verifyUsingJavaScript"/>
-                    <include name="verifyWightSelenium"/>
-                    <include name="verifyScrollDown"/>
-                    <include name="verifyScrollingToViewOfWebElement"/>
-                    <include name="verifyScrollToBottomOfPage"/>
-                    <include name="verifyHorizontalScroll"/>
-                    <include name="verifyTable"/>
-                    <include name="verifyRobot"/>
+                    <exclude name="TC_004_verifyFormNoZipNoState"/>
                 </methods>
             </class>
-            <class name="seleniumbasics.SeleniumDemo">
+            <class name="seleniumbasics.Vehicle">
                 <methods>
-                    <include name="TC_002_verifySingleInputMessage"/>
-                    <include name="verifyValuesInDropDown"/>
+                    <include name="verifyVehicleQuality"/>
+                    <include name="verifyvehicleBrand"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+    <test  name="non Functional Test">
+        <classes>
+            <class name="seleniumbasics.SeleniumBasics">
+                <methods>
+                    <include name="TC_005_verifySubmitform"/>
+                    <include name="TC_006_verifyValidationFieldEmpty"/>
                 </methods>
             </class>
         </classes>
