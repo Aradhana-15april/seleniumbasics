@@ -2,6 +2,8 @@ package seleniumbasics;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.interactions.Actions;
@@ -12,10 +14,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.ITest;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -40,6 +43,28 @@ public class SeleniumBasics {
         driver.manage().window().maximize();
         driver.manage().deleteAllCookies();
     }
+    @BeforeSuite
+    public void beforeSuite(){
+        System.out.println("this is before suit");
+    }
+    @BeforeTest
+    public void beforeTest(){
+        System.out.println("This is before Test");
+
+    }
+    @BeforeClass
+    public void beforeClass(){
+        System.out.println("this is before class");
+    }
+    @AfterTest
+    public void afterTest(){
+        System.out.println("this is after test");
+    }
+    @AfterClass
+    public void afterClass(){
+        System.out.println("this is after class");
+    }
+
 
     @BeforeMethod
     public void setUp() {
@@ -54,14 +79,14 @@ public class SeleniumBasics {
             File screenshot = takesScreenshot.getScreenshotAs(OutputType.FILE);
             FileUtils.copyFile(screenshot, new File("./Screenshots/" + result.getName() + ".png"));
         }
-        //driver.close();
+        driver.close();
     }
 
     @Test
     public void TC_001_verifyObsquraTitle() {
         driver.get("https://selenium.obsqurazone.com/index.php");
         String actualTitle = driver.getTitle();
-        String expectedTitle = "Obsqura Testing1";
+        String expectedTitle = "Obsqura Testing";
         Assert.assertEquals(actualTitle, expectedTitle, "Invalid Title found");
     }
 
@@ -668,9 +693,27 @@ public class SeleniumBasics {
         List<ArrayList<String>> expGridData=ExcelUtility.excelDataReader("\\src\\test\\resources\\TestData.xlsx","Table");
         Assert.assertEquals(actGridData,expGridData,"Invalid data found in table");
 
-
-
-
+    }
+    @Test
+    public void verifyRobot() throws InterruptedException, AWTException {
+        driver.get("https://www.foundit.in/seeker/registration");
+        StringSelection s = new StringSelection("C:\\selenium\\test.txt");
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, null);
+        WebElement chooseFile = driver.findElement(By.xpath("//span[text()='Choose CV']"));
+        chooseFile.click();
+        Robot r = new Robot();
+        Thread.sleep(5000);
+        r.keyPress(KeyEvent.VK_ENTER);
+        r.keyRelease(KeyEvent.VK_ENTER);
+        Thread.sleep(5000);
+        r.keyPress(KeyEvent.VK_CONTROL);
+        r.keyPress(KeyEvent.VK_V);
+        Thread.sleep(5000);
+        r.keyRelease(KeyEvent.VK_CONTROL);
+        r.keyRelease(KeyEvent.VK_V);
+        Thread.sleep(5000);
+        r.keyPress(KeyEvent.VK_ENTER);
+        r.keyRelease(KeyEvent.VK_ENTER);
     }
 }
 
